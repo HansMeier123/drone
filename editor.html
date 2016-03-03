@@ -1,0 +1,219 @@
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Droned</title>
+		<style>
+			body {
+				margin: 0;
+				font-family:Arial;
+				overflow: hidden;
+			}
+			canvas {
+				width: 100%;
+				height: 100% ;
+				float:left;
+				cursor: default;
+				}
+			ul {
+				list-style-type:none;
+				padding-left: 8px;
+				padding-top: 2px;
+				padding-bottom: 0px;
+				border-left: 2px solid #999;
+				margin: 0px;
+				margin-left: 7px;
+			}
+
+			li{
+				padding: 4px 0 0px 0;
+			}
+
+			label{
+				font-weight: bold;
+			}
+
+
+
+			#input-wrapper, #map-wrapper{
+				cursor: default;
+				position:absolute;
+				background-color:#777;
+
+			}
+
+			#input-content{
+
+				color: #333;
+				padding: 10px;
+				background-color: #eee;
+
+			}
+
+			#input-error{
+				margin-top: 10px;
+				color: #f00;
+				font-weight: bold;
+				font-size: 0.7em;
+			}
+
+			#input-button-wrapper{
+				margin-top: 10px;
+				height: 26px;
+			}
+			#input-button-wrapper>button{
+				background-color: rgba(125, 128, 159, 1);
+				border:none;
+				padding: 5px;
+				color: #fff;
+				cursor: pointer;
+				float: right;
+				margin-left: 10px;
+			}
+
+			.handle{
+				height: 20px;
+
+			}
+
+			#map-content{
+
+				color: #333;
+				padding: 10px;
+				background-color: #eee;
+
+				font-size: 0.7em;
+			}
+
+			#map-content>ul{
+				padding-top: 4px;
+			}
+
+			#menu{
+				position:absolute;
+				left: 0px;
+				top: 0px;
+				height: 30px;
+				background-color: #eee;
+				padding-right: 20px;
+
+			}
+
+			.list-button-wrapper{
+				height: 10px;
+			}
+			.list-button{
+				width: 10px;
+				height: 10px;
+				margin:0px 4px 0 3px	;
+				background-color: #999;
+				float: left;
+				//border: 1px solid #333;
+				cursor: pointer;
+			}
+			.list-button-text{
+				color:rgba(125, 128, 159, 1);
+				font-weight: bold;
+				float: left;
+			}
+
+			.list-color-box{
+				width: 80px;
+				height: 40px;
+				margin-top: 4px;
+			}
+
+			.menu-elem{
+				float: left;
+
+
+				background-color:#777;
+
+				display:inline-block;
+				cursor:pointer;
+				color:#fff;
+				font-family:Arial;
+				font-size:17px;
+				padding:6px 10px;
+				margin: 0 0 0 5px;
+				text-decoration:none;
+				text-shadow:0px 1px 0px #2f6627;
+			}
+			.menu-elem:hover {
+
+			}
+			.menu-elem:active {
+				position:relative;
+				top:1px;
+			}
+			.button{
+				padding:8px 10px;
+			}
+		</style>
+	</head>
+	<body>
+
+		<div id="input-wrapper" >
+		<div class="handle"></div>
+			<div id="input-content">
+				<div id="input-information">Neues Gebäude</div>
+				<div>
+					<textarea id="input-textarea" rows="25" cols="90"></textarea>
+				</div>
+					<div id="input-error"></div>
+					<div id="input-button-wrapper">
+					<button id="add-button">Hinzufügen</button>
+					<button id="close-button">Schließen</button>
+
+				</div>
+			</div>
+		</div>
+
+		<div id="map-wrapper">
+		<div class="handle"></div>
+			<div id="map-content">
+
+			</div>
+		</div>
+
+		<div id="menu">
+			<div id="position-output">
+
+			</div>
+			<div class="menu-elem button" id="button-generate">
+				Generate
+			</div>
+			<div class="menu-elem" id="select">
+				<img src="media/select.png"></img>
+			</div>
+			<div class="menu-elem" id="overview">
+				<img src="media/overview.png"></img>
+			</div>
+			<div class="menu-elem" id="save">
+				<img src="media/save.png"></img>
+			</div>
+			<div class="menu-elem" id="add">
+				<img src="media/add.png"></img>
+			</div>
+		</div>
+		<canvas id="canvas"></canvas>
+
+	<script>
+		editMode = true;
+	</script>
+
+	<script src="js/jquery.js"></script>
+	<script src="js/jquery-ui.js"></script>
+	<script src="map.js"></script>
+	<script src="js/map.class.js"></script>
+	<script src="js/building.class.js"></script>
+	<script src="js/component.class.js"></script>
+	<script src="js/segment.class.js"></script>
+	<script src="js/forest.class.js"></script>
+	<script src="js/tree.class.js"></script>
+	<script src="js/editor.js"></script>
+	<script src="js/inputWindow.class.js"></script>
+	<script src="js/engine.js"></script>
+
+	</body>
+
+</html>
