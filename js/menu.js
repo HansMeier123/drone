@@ -44,7 +44,7 @@ function Menu()
 	tx = 0.5*$(document).width();
 	ty = py + pheight + 50;
 	FillArray(); //Array füllen
-	setTimeout(function(){IntroRender();},100); //IntroRender Funktion muss mit Verzögerung gestartet werden, damit der Custom Font vorher geladen wird
+	setTimeout(function(){IntroRender();},3000); //IntroRender Funktion muss mit Verzögerung gestartet werden, damit der Custom Font vorher geladen wird
 }
 
 
