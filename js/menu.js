@@ -1,496 +1,413 @@
-function Menu(){
-	this.images = [];
-		for(var i = 0; i < 36; i++){
-			this.images.push(new Image());
-			this.images[i].src = 'media/pictures/intro' + (i + 1) + '.jpg';
-		}
-		this.images.push(new Image());
-		this.images[36].src = 'media/pictures/menu.png';
+var intro = 1; //Zählervariable für die einzelnen Intro Schritte
+var blink = 0; //Zählervariable für die Blink Funktion
+var px; //festgelegte X-Koordinate für die Bilder im Intro
+var py; //festgelegte Y-Koordinate für die Bilder im Intro
+var pheight; //festgelegte Höhe für die Bilder im Intro
+var pwidth; //festgelegte Breite für die Bilder im Intro
+var tx; //festgelegte X-Koordinate für die Texte im Intro
+var ty; //festgelegte Y-Koordinate für die Texte im Intro
+var texte = []; //Array für die Texte im Intro
+var lines = []; //Array für die Angabe, wie viele Zeilen der Text im jeweiligen Intro Schritt umfasst
+var lintro = 1; //Zählervariable um zu berücksichtigen, dass pro Intro Schritt durch mehrzeiligen Text der Text weiter hinten aus dem texte Array gelesen werden soll
+var bilder = []; //Array für die Bilder im Intro
+var keinbild = 0; //Zählervariable beim Erstellen des bilder Arrays, um Stellen ohne Bilder im Array leer zu lassen
+var delay = []; //Array für die Zeit der Verzögerungen zwischen den einzelnen Intro Schritten
+var timeoutes = []; //Array für die Timeout Verzögerungen zwischen den einzelnen Intro Schritten
+var music = []; //Array für die Musik Dateien im Intro und Titelbildschirm
 
-	this.music = [];
-		for(var i = 0; i < 3; i++){
-			this.music[i] = new Audio('media/music/intro' + (i + 1) + '.mp3');
-		}
-		this.music[3] = new Audio('media/music/menu.mp3');
+var img1 = new Image; //erstes Bild für Intro muss vor FillArray() schon deklariert und definiert sein, um angezeigt zu werden
+img1.src = 'media/pictures/intro1.jpg';
 
+//lädt den Custom Font (AchtBit) mithilfe des Google Webfont Loaders
+WebFontConfig = {
+custom: { families: ['AchtBit'],
+urls: [ 'media/font/DTMMonoWeb.css']},
+active: function() {}};
+(function() {
+    var wf = document.createElement('script');
+	wf.src = 'js/webfontloader.js'
+    //wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+        //'://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+    wf.type = 'text/javascript';
+    wf.async = 'true';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(wf, s);
+  })();
+
+function Menu()
+{
 	this.started = false;
-	this.intro = 0;
-	this.blink = 0;
-
-
-	$(document).keydown(function(event){
-		if(event.keyCode == 32 && !menu.started){
-			if (menu.intro == 44){
-				menu.music[3].pause();
-				menu.started = true;
-				gameStatus = 1;
-
-	      viewport.x = -1*Math.round(5000 - canvas.width/2);
-	      viewport.y = -1*Math.round(5000 - canvas.height/2);
-
-	      globalMap = new Map(getMap());
-	      game = new Game();
-	      miniMap = new MiniMap();
-	      hud = new Hud();
-			} else {
-				switch(menu.intro){
-					case 1: {clearTimeout(timeout1); break;}
-					case 2: {clearTimeout(timeout2); break;}
-					case 3: {clearTimeout(timeout3); break;}
-					case 4: {clearTimeout(timeout4); break;}
-					case 5: {clearTimeout(timeout5); break;}
-					case 6: {clearTimeout(timeout6); break;}
-					case 7: {clearTimeout(timeout7); break;}
-					case 8: {clearTimeout(timeout8); break;}
-					case 9: {clearTimeout(timeout9); break;}
-					case 10: {clearTimeout(timeout10); break;}
-					case 11: {clearTimeout(timeout11); break;}
-					case 12: {clearTimeout(timeout12); break;}
-					case 13: {clearTimeout(timeout13); break;}
-					case 14: {clearTimeout(timeout14); break;}
-					case 15: {clearTimeout(timeout15); break;}
-					case 16: {clearTimeout(timeout16); break;}
-					case 17: {clearTimeout(timeout17); break;}
-					case 18: {clearTimeout(timeout18); break;}
-					case 19: {clearTimeout(timeout19); break;}
-					case 20: {clearTimeout(timeout20); break;}
-					case 21: {clearTimeout(timeout21); break;}
-					case 22: {clearTimeout(timeout22); break;}
-					case 23: {clearTimeout(timeout23); break;}
-					case 24: {clearTimeout(timeout24); break;}
-					case 25: {clearTimeout(timeout25); break;}
-					case 26: {clearTimeout(timeout26); break;}
-					case 27: {clearTimeout(timeout27); break;}
-					case 28: {clearTimeout(timeout28); break;}
-					case 29: {clearTimeout(timeout29); break;}
-					case 30: {clearTimeout(timeout30); break;}
-					case 31: {clearTimeout(timeout31); break;}
-					case 32: {clearTimeout(timeout32); break;}
-					case 33: {clearTimeout(timeout33); break;}
-					case 34: {clearTimeout(timeout34); break;}
-					case 35: {clearTimeout(timeout35); break;}
-					case 36: {clearTimeout(timeout36); break;}
-					case 37: {clearTimeout(timeout37); break;}
-					case 38: {clearTimeout(timeout38); break;}
-					case 39: {clearTimeout(timeout39); break;}
-					case 40: {clearTimeout(timeout40); break;}
-					case 41: {clearTimeout(timeout41); break;}
-					case 42: {clearTimeout(timeout42); break;}
-					case 43: {clearTimeout(timeout42); break;}
-				}
-
-				menu.intro = 44;
-				menu.titelbildschirm();
-			}
-		}
-	});
+	pheight = 0.5*$(document).height(); //Bestimmung der Koordinaten und Größer der Texte und Bilder
+	pwidth = Math.round(pheight*16/9);
+	px = 0.5*$(document).width() - 0.5*pwidth;
+	py = 50;
+	tx = 0.5*$(document).width();
+	ty = py + pheight + 50;
+	FillArray(); //Array füllen
+	setTimeout(function(){IntroRender();},100); //IntroRender Funktion muss mit Verzögerung gestartet werden, damit der Custom Font vorher geladen wird
 }
 
-Menu.prototype.introRender = function(){
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	ctx.fillStyle = 'black';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-	ctx.font = "32px consolas";
-	ctx.fillStyle = 'white';
-	ctx.textAlign = 'center';
 
-	this.intro++;
-
-	switch(this.intro){
-
-		case 1:{
-    	menu.music[0].play();
-			ctx.drawImage(this.images[0], canvas.width/2 - 480, 50, 960, 540);
-			ctx.fillText("Vor langer Zeit, entschied einst ein weiser Mann,",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("in Afghanisten und den Irak einzumaschieren.",0.5*canvas.width,canvas.height - 260);
-			timeout1 = setTimeout(function(){menu.introRender();},3500);
-			break;
-		}
-
-		case 2:{
-			ctx.drawImage(this.images[1],  canvas.width/2 - 480, 50, 960, 540);
-			ctx.fillText("Diktatoren wurden gestuerzt...",0.5*canvas.width,canvas.height - 300);
-			timeout2 = setTimeout(function(){menu.introRender();},3200);
-			break;
-		}
-
-		case 3:{
-			ctx.drawImage(this.images[2], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Terroristische Organisationen zerschlagen...",0.5*canvas.width,canvas.height - 300);
-			timeout3 = setTimeout(function(){menu.introRender();},3000);
-			break;
-		}
-
-		case 4:{
-			ctx.drawImage(this.images[3], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Der gesamte Nahe Osten wurde erstmals",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("zu einem Ort voller Freude und Hoffnung.",0.5*canvas.width,canvas.height - 260);
-			timeout4 = setTimeout(function(){menu.introRender();},4500);
-			break;
-		}
-
-		case 5:{
-			ctx.fillText("Wem wir das zu verdanken haben?",0.5*canvas.width,canvas.height - 300);
-			timeout5 = setTimeout(function(){menu.introRender();},2000);
-			break;
-		}
-
-		case 6:{
-			ctx.drawImage(this.images[4], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Niemand Geringerem als Georg W. Bush,",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("43. Praesident der Vereinigten Staaten.",0.5*canvas.width,canvas.height - 260);
-			timeout6 = setTimeout(function(){menu.introRender();},5000);
-			break;
-		}
-
-		case 7:{
-			ctx.drawImage(this.images[5], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Seinem Land treu ergeben, tat er stets das Richtige",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("und brachte die Vereinigten Staaten von Amerika zu neuem Glanz.",0.5*canvas.width,canvas.height - 260);
-			timeout7 = setTimeout(function(){menu.introRender();},6000);
-			break;
-		}
-
-		case 8:{
-			ctx.drawImage(this.images[6], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Denn ihm lag allein das Wohl aller, von klein bis gross,",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("von schwarz bis weiss, von Amerikaner bis Mexikaner, am Herzen.",0.5*canvas.width,canvas.height - 260);
-			ctx.fillText("Noch heute blickt man nostalgisch auf diese 8 Jahre zurueck.",0.5*canvas.width,canvas.height - 220);
-			timeout8 = setTimeout(function(){menu.introRender();},8000);
-			break;
-		}
-
-		case 9:{
-			ctx.drawImage(this.images[7], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Seine Verabschiedung galt als eines der bewegendsten Momente jeden Amerikaners.",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("Eine glorreiche Aera war so eben zu Ende gegangen.",0.5*canvas.width,canvas.height - 260);
-			timeout9 = setTimeout(function(){menu.introRender();},6000);
-			break;
-		}
-
-		case 10:{
-			ctx.fillText("Wer wuerde in derart riesige Fussstapfen treten?",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("Wuerde es ueberhaupt jemand geben, der es koennte?",0.5*canvas.width,canvas.height - 260);
-			timeout10 = setTimeout(function(){menu.introRender();},6000);
-			break;
-		}
-
-		case 11:{
-			ctx.drawImage(this.images[8], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Tatsaechlich gab es einen Kandidaten, der der Aufgabe gewachsen schien:",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("Senator John McCain.",0.5*canvas.width,canvas.height - 260);
-			ctx.fillText("Die Chance einer weiteren golden Aera schien zum Greifen nahe.",0.5*canvas.width,canvas.height - 220);
-			timeout11 = setTimeout(function(){menu.introRender();},8000);
-			break;
-		}
-
-		case 12:{
-			this.music[0].pause();
-			this.music[0].currentTime = 0;
-			ctx.fillText("Doch dann kam alles ganz anders...",0.5*canvas.width,canvas.height - 300);
-			timeout12 = setTimeout(function(){menu.introRender();},3000);
-			break;
-		}
-
-		case 13:{
-			this.music[1].play();
-			ctx.drawImage(this.images[9], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("...als Barack Obama Praesident wurde.",0.5*canvas.width,canvas.height - 300);
-			timeout13 = setTimeout(function(){menu.introRender();},3000);
-			break;
-		}
-
-		case 14:{
-			ctx.drawImage(this.images[10], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Ohne mit der Wimper zu zucken, zerstoerte Obama alles,",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("was Bush aufgebaut hatte. Seine kommunistische Politik riss",0.5*canvas.width,canvas.height - 260);
-			ctx.fillText("das Fundament der amerikanischen Werte ein.",0.5*canvas.width,canvas.height - 220);
-			timeout14 = setTimeout(function(){menu.introRender();},7000);
-			break;
-		}
-
-		case 15:{
-			ctx.drawImage(this.images[11], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Militarismus, Patriotismus und allen voran die Demokratie",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("gehoerten der Vergangenheit an.",0.5*canvas.width,canvas.height - 260);
-			timeout15 = setTimeout(function(){menu.introRender();},5000);
-			break;
-		}
-
-		case 16:{
-			ctx.drawImage(this.images[12], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Durch Obamas teuflichen Akt des Truppenabzugs",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("uebernahm die Diktatur wieder die Oberhand ueber den Nahen Osten...",0.5*canvas.width,canvas.height - 260);
-			timeout16 = setTimeout(function(){menu.introRender();},6000);
-			break;
-		}
-
-		case 17:{
-			ctx.drawImage(this.images[13], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Und mit dem Wiederaufstieg der Diktatur kam das Chaos zurueck...",0.5*canvas.width,canvas.height - 300);
-			timeout17 = setTimeout(function(){menu.introRender();},4000);
-			break;
-		}
-
-		case 18:{
-			ctx.drawImage(this.images[14], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Und mit dem Chaos der Terrorismus...",0.5*canvas.width,canvas.height - 300);
-			timeout18 = setTimeout(function(){menu.introRender();},4000);
-			break;
-		}
-
-		case 19:{
-			ctx.drawImage(this.images[15], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Abu Bakr al-Baghdadi nutze die Gelegenheit",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("und fuellte das durch das Chaos entstandene Machtvakuum",0.5*canvas.width,canvas.height - 260);
-			ctx.fillText("mit seiner neu gegruendeten Terror Organisation:",0.5*canvas.width,canvas.height - 220);
-			timeout19 = setTimeout(function(){menu.introRender();},6000);
-			break;
-		}
-
-		case 20:{
-			ctx.drawImage(this.images[16], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("...dem Islamischen Staat.",0.5*canvas.width,canvas.height - 300);
-			timeout20 = setTimeout(function(){menu.introRender();},4000);
-			break;
-		}
-
-		case 21:{
-			ctx.drawImage(this.images[17], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Wie ein Parasit fing der IS an,",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("mehr und mehr Gebiete in Syrien und dem Irak zu erobern.",0.5*canvas.width,canvas.height - 260);
-			timeout21 = setTimeout(function(){menu.introRender();},6000);
-			break;
-		}
-
-		case 22:{
-			ctx.drawImage(this.images[18], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Unaufhaltsam und entschlossen, strebte der IS die Eroberung",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("der arabischen und schlussendlich der gesamten Welt an.",0.5*canvas.width,canvas.height - 260);
-			timeout22 = setTimeout(function(){menu.introRender();},6000);
-			break;
-		}
-
-		case 23:{
-			ctx.drawImage(this.images[19], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Um dies zu erreichen, zeigte der IS keine Gnade.",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("Der internationale Terrorismus war auf einem neuen Hoehepunkt.",0.5*canvas.width,canvas.height - 260);
-			ctx.fillText("Ueberall auf der Welt kam es zu Terroranschlaegen.",0.5*canvas.width,canvas.height - 220);
-			timeout23 = setTimeout(function(){menu.introRender();},6000);
-			break;
-		}
-
-		case 24:{
-			ctx.drawImage(this.images[20], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Obama hatte die Welt in ein dunkles Zeitalter gestuerzt.",0.5*canvas.width,canvas.height - 300);
-			timeout24 = setTimeout(function(){menu.introRender();},3000);
-			break;
-		}
-
-		case 25:{
-			timeout25 = setTimeout(function(){menu.introRender();},4000);
-			break;
-		}
-
-		case 26:{
-			ctx.drawImage(this.images[21], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Obama erkannte seinen Fehler und erklaerte dem IS den Krieg.",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("Jedoch weigerte er sich, Bodentruppen einzusetzen.",0.5*canvas.width,canvas.height - 260);
-			ctx.fillText("Einzig und allein mit Dronen sollte der IS besiegt werden.",0.5*canvas.width,canvas.height - 220);
-			timeout26 = setTimeout(function(){menu.introRender();},7000);
-			break;
-		}
-
-		case 27:{
-			ctx.drawImage(this.images[22], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Doch natuerlich konnte man so allein den Terror nicht bekaempfen.",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("Obama verschlimmerte die Situation nur noch, als weitere Diktatoren",0.5*canvas.width,canvas.height - 260);
-			ctx.fillText("entschieden, sich an dem Krieg im Nahen Osten zu beteiligen.",0.5*canvas.width,canvas.height - 220);
-			timeout27 = setTimeout(function(){menu.introRender();},7000);
-			break;
-		}
-
-		case 28:{
-			ctx.drawImage(this.images[23], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Nach 8 Jahren war der Spuk vorbei.",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("Obama liess nach seiner Verabschiedung ein Truemmerfeld zurueck.",0.5*canvas.width,canvas.height - 260);
-			timeout28 = setTimeout(function(){menu.introRender();},5000);
-			break;
-		}
-
-		case 29:{
-			this.music[0].pause();
-			this.music[1].pause();
-			this.music[1].currentTime = 0;
-			ctx.fillText("Die Welt brauchte eine neue Hoffnung,",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("einen zweiten Georg W. Bush.",0.5*canvas.width,canvas.height - 260);
-			ctx.fillText("Zum Glueck wurden die Gebete des amerikanischen Volkes diesmal erhoert...",0.5*canvas.width,canvas.height - 220);
-			timeout29 = setTimeout(function(){menu.introRender();},6000);
-			break;
-		}
-
-		case 30:{
-			this.music[2].play();
-			ctx.drawImage(this.images[24], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("...als Donald Trump zum 45. Praesident der USA wurde.",0.5*canvas.width,canvas.height - 300);
-			timeout30 = setTimeout(function(){menu.introRender();},5000);
-			break;
-		}
-
-		case 31:{
-			ctx.drawImage(this.images[25], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Trump wusste, was Obama falsch gemacht hatte.",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("Und er wusste, was er tun musste, um Amerika wieder gross und glorreich zu machen.",0.5*canvas.width,canvas.height - 260);
-			timeout31 = setTimeout(function(){menu.introRender();},7000);
-			break;
-		}
-
-		case 32:{
-			ctx.drawImage(this.images[26], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Die amerikanischen Werte wurden wiederhergestellt.",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("Der amerikanische Stolz kehrte zurueck.",0.5*canvas.width,canvas.height - 260);
-			ctx.fillText("Die amerikanische Staerke war so gross wie nie zuvor.",0.5*canvas.width,canvas.height - 220);
-			timeout32 = setTimeout(function(){menu.introRender();},7000);
-			break;
-		}
-
-		case 33:{
-			ctx.drawImage(this.images[27], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Das amerikanische Volk hatte wieder Hoffnungen und Traeume.",0.5*canvas.width,canvas.height - 300);
-			timeout33 = setTimeout(function(){menu.introRender();},5000);
-			break;
-		}
-
-		case 34:{
-			ctx.drawImage(this.images[28], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Bushs Werk wurde fortgefuehrt.",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("Die kommunistischen Krater der demokratischen Partei endgueltig gefuellt.",0.5*canvas.width,canvas.height - 260);
-			timeout34 = setTimeout(function(){menu.introRender();},7000);
-			break;
-		}
-
-		case 35:{
-			ctx.drawImage(this.images[29], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Doch der groesste Scherbenhaufen lag nicht im Inland.",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("Der Nahe Osten musste gerettet werden.",0.5*canvas.width,canvas.height - 260);
-			ctx.fillText("Der Islamische Staat musste besiegt werden.",0.5*canvas.width,canvas.height - 220);
-			timeout35 = setTimeout(function(){menu.introRender();},7000);
-			break;
-		}
-
-		case 36:{
-			ctx.drawImage(this.images[30], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Mithilfe seines grossen militaerischen Geschickes,",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("ordnete Trump eine Grossoffensive gegen den IS an.",0.5*canvas.width,canvas.height - 260);
-			timeout36 = setTimeout(function(){menu.introRender();},6000);
-			break;
-		}
-
-		case 37:{
-			ctx.fillText("Und da kommen Sie ins Spiel...",0.5*canvas.width,canvas.height - 300);
-			timeout37 = setTimeout(function(){menu.introRender();},5000);
-			break;
-		}
-
-		case 38:{
-			ctx.drawImage(this.images[31], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Auch wenn mit dem Einsatz von Bodentruppen bisher viel erreicht wurde,",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("sind Sie als Dronenpilot nach wie vor unentbehrlich fuer den Kampf gegen den Terror.",0.5*canvas.width,canvas.height - 260);
-			timeout38 = setTimeout(function(){menu.introRender();},7000);
-			break;
-		}
-
-		case 39:{
-			ctx.drawImage(this.images[32], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Ihr Praesident moechte von Ihnen vor allen Dingen eins:",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("Dass Sie keine Gnade walten lassen.",0.5*canvas.width,canvas.height - 260);
-			ctx.fillText("Jedes Haus ist ein potentielles Versteck fuer Terroristen.",0.5*canvas.width,canvas.height - 220);
-			timeout39 = setTimeout(function(){menu.introRender();},7000);
-			break;
-		}
-
-		case 40:{
-			ctx.drawImage(this.images[33], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Demokratie gibt es nur durch Frieden.",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("Frieden nur durch den Sieg des Krieges.",0.5*canvas.width,canvas.height - 260);
-			ctx.fillText("Und den Sieg nur durch gnadenloses Zerbomben.",0.5*canvas.width,canvas.height - 220);
-			ctx.fillText("Mit jeder Ihrer Bomben verbreiten Sie also mehr und mehr Demokratie im Nahen Osten.",0.5*canvas.width,canvas.height - 180);
-			timeout40 = setTimeout(function(){menu.introRender();},10000);
-			break;
-		}
-
-		case 41:{
-			ctx.drawImage(this.images[34], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Die Zeit ist gekommen.",0.5*canvas.width,canvas.height - 300);
-			ctx.fillText("Machen Sie den Nahen Osten wieder zu einem friedlichen und demokratischen Ort!",0.5*canvas.width,canvas.height - 260);
-			ctx.fillText("Machen Sie Ihren Praesidenten und das amerikanische Volk stolz!",0.5*canvas.width,canvas.height - 220);
-			timeout41 = setTimeout(function(){menu.introRender();},9000);
-			break;
-		}
-
-		case 42:{
-			ctx.drawImage(this.images[35], 0.5*canvas.width - 480, 50, 960, 540);
-			ctx.fillText("Machen Sie die Vereinigten Staaten von Amerika wieder gross und glorreich!",0.5*canvas.width,canvas.height - 300);
-			timeout42 = setTimeout(function(){menu.introRender();},10000);
-			break;
-		}
-
-		case 43:
+$(document).keydown(function(event)
+{
+	if(event.keyCode == 32 && !menu.started)
+	{
+		if (intro == 45) //startet das Spiel beim Drücken der Leertaste im Titelbildschirm
 		{
-			timeout43 = setTimeout(function(){menu.introRender();},3000);
-			break;
-		}
+			music[3].pause();
+			music[3].currentTime = 0;
+			menu.started = true;
+			gameStatus = 1;
 
-		case 44:
-		{
-			menu.titelbildschirm();
-			break;
+			viewport.x = -1*Math.round(5000 - canvas.width/2);
+			viewport.y = -1*Math.round(5000 - canvas.height/2);
+	
+			globalMap = new Map(getMap());
+			game = new Game();
+			miniMap = new MiniMap();
+			hud = new Hud();
+		} 
+		else //beendet das Intro und springt zum Titebildschirm beim Drücken der Leertaste im Intro
+		{			
+			clearTimeout(timeoutes[intro]);
+			intro = 45;
+			Menu.prototype.Titelbildschirm();
 		}
 	}
+});
+
+function FillArray()
+{
+	texte.push(""); //füllt das texte und lines Array
+	lines.push(0);
+	texte.push("Vor langer Zeit, entschied einst ein weiser Mann,");
+	texte.push("in Afghanisten und den Irak einzumaschieren.");
+	lines.push(2);
+	texte.push("Diktatoren wurden gest\u00fcrzt...");
+	lines.push(1);
+	texte.push("Terroristische Organisationen zerschlagen...");
+	lines.push(1);
+	texte.push("Der gesamte Nahe Osten wurde erstmals");
+	texte.push("zu einem Ort voller Freude und Hoffnung.");
+	lines.push(2);
+	texte.push("Wem wir das zu verdanken haben?");
+	lines.push(1);
+	texte.push("Niemand Geringerem als Georg W. Bush,");
+	texte.push("43. Pr\u00e4sident der Vereinigten Staaten.");
+	lines.push(2);
+	texte.push("Seinem Land treu ergeben, tat er stets das Richtige");
+	texte.push("und brachte die Vereinigten Staaten von Amerika zu neuem Glanz.");
+	lines.push(2);
+	texte.push("Denn ihm lag allein das Wohl aller, von klein bis gross,");
+	texte.push("von schwarz bis wei\u00df, von Amerikaner bis Mexikaner, am Herzen.");
+	texte.push("Noch heute blickt man nostalgisch auf diese 8 Jahre zur\u00fcck.");
+	lines.push(3);
+	texte.push("Seine Verabschiedung galt als eines der bewegendsten Momente jeden Amerikaners.");
+	texte.push("Eine glorreiche \u00c4ra war so eben zu Ende gegangen.");
+	lines.push(2);
+	texte.push("Wer w\u00fcrde in derart riesige Fu\u00dfstapfen treten?");
+	texte.push("W\u00fcrde es \u00fcberhaupt jemand geben, der es k\u00f6nnte?");
+	lines.push(2);
+	texte.push("Tats\u00e4chlich gab es einen Kandidaten, der der Aufgabe gewachsen schien:");
+	texte.push("Senator John McCain.");
+	texte.push("Die Chance einer weiteren golden \u00c4ra schien zum Greifen nahe.");
+	lines.push(3);
+	texte.push("Doch dann kam alles ganz anders...");
+	lines.push(1);
+	texte.push("...als Barack Obama Pr\u00e4sident wurde.");
+	lines.push(1);
+	texte.push("Ohne mit der Wimper zu zucken, zerst\u00f6rte Obama alles,");
+	texte.push("was Bush aufgebaut hatte. Seine kommunistische Politik riss");
+	texte.push("das Fundament der amerikanischen Werte ein.");
+	lines.push(3);
+	texte.push("Militarismus, Patriotismus und allen voran die Demokratie");
+	texte.push("geh\u00f6rten der Vergangenheit an.");
+	lines.push(2);
+	texte.push("Durch Obamas teuflichen Akt des Truppenabzugs");
+	texte.push("\u00fcbernahm die Diktatur wieder die Oberhand \u00fcber den Nahen Osten...");
+	lines.push(2);
+	texte.push("Und mit dem Wiederaufstieg der Diktatur kam das Chaos zur\u00fcck...");
+	lines.push(1);
+	texte.push("Und mit dem Chaos der Terrorismus...");
+	lines.push(1);
+	texte.push("Abu Bakr al-Baghdadi nutzte die Gelegenheit");
+	texte.push("und f\u00fcllte das durch das Chaos entstandene Machtvakuum");
+	texte.push("mit seiner neu gegr\u00fcndeten Terror Organisation:");
+	lines.push(3);
+	texte.push("...dem Islamischen Staat.");
+	lines.push(1);
+	texte.push("Wie ein Parasit fing der IS an,");
+	texte.push("mehr und mehr Gebiete in Syrien und dem Irak zu erobern.");
+	lines.push(2);
+	texte.push("Unaufhaltsam und entschlossen, strebte der IS die Eroberung");
+	texte.push("der arabischen und schlussendlich der gesamten Welt an.");
+	lines.push(2);
+	texte.push("Um dies zu erreichen, zeigte der IS keine Gnade.");
+	texte.push("Der internationale Terrorismus war auf einem neuen H\u00f6hepunkt.");
+	texte.push("\u00dcberall auf der Welt kam es zu Terroranschl\u00e4gen.");
+	lines.push(3);
+	texte.push("Obama hatte die Welt in ein dunkles Zeitalter gest\u00fcrzt.");
+	lines.push(1);
+	lines.push(0);
+	texte.push("Obama erkannte seinen Fehler und erkl\u00e4rte dem IS den Krieg.");
+	texte.push("Jedoch weigerte er sich, Bodentruppen einzusetzen.");
+	texte.push("Einzig und allein mit Dronen sollte der IS besiegt werden.");
+	lines.push(3);
+	texte.push("Doch nat\u00fcrlich konnte man so allein den Terror nicht bek\u00e4mpfen.");
+	texte.push("Obama verschlimmerte die Situation nur noch, als weitere Diktatoren");
+	texte.push("entschieden, sich an dem Krieg im Nahen Osten zu beteiligen.");
+	lines.push(3);
+	texte.push("Nach 8 Jahren war der Spuk vorbei.");
+	texte.push("Obama lie\u00df nach seiner Verabschiedung ein Tr\u00fcmmerfeld zur\u00fcck.");
+	lines.push(2);
+	texte.push("Die Welt brauchte eine neue Hoffnung,");
+	texte.push("einen zweiten Georg W. Bush.");
+	texte.push("Zum Gl\u00fcck wurden die Gebete des amerikanischen Volkes diesmal erh\u00f6rt...");
+	lines.push(3);
+	texte.push("...als Donald Trump zum 45. Pr\u00e4sident der USA wurde.");
+	lines.push(1);
+	texte.push("Trump wusste, was Obama falsch gemacht hatte.");
+	texte.push("Und er wusste, was er tun musste, um Amerika wieder gro\u00df und glorreich zu machen.");
+	lines.push(2);
+	texte.push("Die amerikanischen Werte wurden wiederhergestellt.");
+	texte.push("Der amerikanische Stolz kehrte zur\u00fcck.");
+	texte.push("Die amerikanische St\u00e4rke war so gro\u00df wie nie zuvor.");
+	lines.push(3);
+	texte.push("Das amerikanische Volk hatte wieder Hoffnungen und Tr\u00e4ume.");
+	lines.push(1);
+	texte.push("Bushs Werk wurde fortgef\u00fchrt.");
+	texte.push("Die kommunistischen Krater der demokratischen Partei endg\u00fcltig gef\u00fcllt.");
+	lines.push(2);
+	texte.push("Doch der gr\u00f6\u00dfte Scherbenhaufen lag nicht im Inland.");
+	texte.push("Der Nahe Osten musste gerettet werden.");
+	texte.push("Der Islamische Staat musste besiegt werden.");
+	lines.push(3);
+	texte.push("Mithilfe seines gro\u00dfen milit\u00e4rischen Geschickes,");
+	texte.push("ordnete Trump eine Gro\u00dfoffensive gegen den IS an.");
+	lines.push(2);
+	texte.push("Und da kommen Sie ins Spiel...");
+	lines.push(1);
+	texte.push("Auch wenn mit dem Einsatz von Bodentruppen bisher viel erreicht wurde,");
+	texte.push("sind Sie als Dronenpilot nach wie vor unentbehrlich f\u00fcr den Kampf gegen den Terror.");
+	lines.push(2);
+	texte.push("Ihr Pr\u00e4sident m\u00f6chte von Ihnen vor allen Dingen eins:");
+	texte.push("Dass Sie keine Gnade walten lassen.");
+	texte.push("Jedes Haus ist ein potentielles Versteck f\u00fcr Terroristen.");
+	lines.push(3);
+	texte.push("Demokratie gibt es nur durch Frieden.");
+	texte.push("Frieden nur durch den Sieg des Krieges.");
+	texte.push("Und den Sieg nur durch gnadenloses Zerbomben.");
+	texte.push("Mit jeder Ihrer Bomben verbreiten Sie also mehr und mehr Demokratie im Nahen Osten.");
+	lines.push(4);
+	texte.push("Die Zeit ist gekommen.");
+	texte.push("Machen Sie den Nahen Osten wieder zu einem friedlichen und demokratischen Ort!");
+	texte.push("Machen Sie Ihren Pr\u00e4sidenten und das amerikanische Volk stolz!");
+	lines.push(3);
+	texte.push("Machen Sie die Vereinigten Staaten von Amerika wieder gro\u00df und glorreich!");
+	lines.push(1);
+	
+	for(var i = 2; i < 43; i++) //füllt das bilder Array
+	{
+		if (i == 5 || i == 10 || i == 12 || i == 25 || i == 29 || i == 37)
+		{
+			keinbild++;
+			continue;
+		}
+		
+		bilder[i] = new Image();
+		bilder[i].src = "media/pictures/intro" + (i - keinbild) + ".jpg";
+	}
+	
+	imgmenu = new Image(); //legt das Bild für den Titelbildschirm fest
+	imgmenu.src = 'media/pictures/menu.png';
+
+	delay.push(0); //füllt das delay Array
+	delay.push(3500);
+	delay.push(3200);
+	delay.push(3000);
+	delay.push(4500);
+	delay.push(2000);
+	delay.push(5000);
+	delay.push(6000);
+	delay.push(8000);
+	delay.push(6000);
+	delay.push(6000);
+	delay.push(8000);
+	delay.push(3000);
+	delay.push(3000);
+	delay.push(7000);
+	delay.push(5000);
+	delay.push(6000);
+	delay.push(4000);
+	delay.push(4000);
+	delay.push(6000);
+	delay.push(4000);
+	delay.push(6000);
+	delay.push(6000);
+	delay.push(6000);
+	delay.push(3000);
+	delay.push(4000);
+	delay.push(7000);
+	delay.push(7000);
+	delay.push(5000);
+	delay.push(6000);
+	delay.push(5000);
+	delay.push(7000);
+	delay.push(7000);
+	delay.push(5000);
+	delay.push(7000);
+	delay.push(7000);
+	delay.push(6000);
+	delay.push(5000);
+	delay.push(7000);
+	delay.push(7000);
+	delay.push(10000);
+	delay.push(9000);
+	delay.push(10000);
+	delay.push(3000);
+	
+	for(var i = 0; i < 3; i++) //füllt das music Array
+	{
+		music[i] = new Audio('media/music/intro' + (i + 1) + '.mp3');
+	}
+		music[3] = new Audio('media/music/menu.mp3');
 }
 
-Menu.prototype.titelbildschirm = function(){
-	this.music[0].pause();
-	this.music[1].pause();
-	this.music[2].pause();
-	this.music[0].currentTime = 0;
-	this.music[1].currentTime = 0;
-	this.music[2].currentTime = 0;
-	this.music[3].play();
-	this.music[3].loop = true;
-
-	ctx.clearRect(0,0,canvas.width,canvas.height);
-	ctx.drawImage(this.images[36], 0, 0, canvas.width, canvas.height);
-	ctx.font = "84px consolas";
-	ctx.textAlign = 'center';
+function IntroRender()
+{
+	if (intro == 45)
+	{
+		return;
+	}
+	
+	ctx.clearRect(0,0,canvas.width,canvas.height); //zeichnet den schwarzen Untergrund und legt die Eigenschaften des Textes fest
+	ctx.fillStyle = 'black';
+  	ctx.fillRect(0,0,$(document).width(),$(document).height());
+	ctx.font = "28px AchtBit";
 	ctx.fillStyle = 'white';
-	ctx.fillText("[Hier Name des Spiels einfuegen]",0.5*canvas.width,100);
+	ctx.textAlign = 'center';
+	
+	switch (intro) //für den Musikwechsel während des Intros zuständig
+	{
+		case 1:
+		{
+			music[0].play();
+			break;
+		}
 
-	setTimeout(function(){
-        timer = setInterval(function(){
-            menu.blinken();
-        },1000);
-	},3000);
+		case 12:
+		{
+			music[0].pause();
+			music[0].currentTime = 0;
+			break;
+		}
+
+		case 13:
+		{
+			music[1].play();
+			break;
+		}
+
+		case 29:
+		{
+			music[1].pause();
+			music[1].currentTime = 0;
+			break;
+		}
+
+		case 30:
+		{
+			music[2].play();
+			break;
+		}
+		
+		case 44:
+		{
+			Menu.prototype.Titelbildschirm();
+			intro++;
+			return;
+		}
+	}
+	
+	if (intro == 1) //für das Zeichnen des Bildes zuständig
+	{
+		ctx.drawImage(img1, px, py, pwidth, pheight);
+	}
+	else
+	{
+		if (bilder[intro] != null)
+		{
+			ctx.drawImage(bilder[intro], px, py, pwidth, pheight);
+		}
+	}
+		
+	if (lines[intro] >= 1) //für das Schreiben des Textes auf mehreren Zeilen zuständig
+	{
+		ctx.fillText(texte[lintro], tx, ty);
+	}
+	
+	if (lines[intro] >= 2)
+	{
+		ctx.fillText(texte[lintro + 1], tx, ty + 40);
+	}
+	
+	if (lines[intro] >= 3)
+	{
+		ctx.fillText(texte[lintro + 2], tx, ty + 80);
+	}
+	
+	if (lines[intro] == 4)
+	{
+		ctx.fillText(texte[lintro + 3], tx, ty + 120);
+	}
+	
+	lintro = lintro + lines[intro]; //addiert zu lintro die derzeitigen Anzahl der Zeilen, damit das Programm weiß, wo der nächste Text im Array anfängt
+	timeoutes[intro] = setTimeout(function(){IntroRender();},delay[intro]); //erstellt die Verzögerung bis zum nächsten Intro Schritt
+	intro++;
 }
 
-Menu.prototype.blinken = function(){
+Menu.prototype.Titelbildschirm = function(){
+	music[0].pause(); //pausiert alle anderen Songs, um den Titelsong zu spielen
+	music[1].pause();
+	music[2].pause();
+	music[0].currentTime = 0;
+	music[1].currentTime = 0;
+	music[2].currentTime = 0;
+	music[3].play();
+	music[3].loop = true;
+
+	ctx.clearRect(0,0,canvas.width,canvas.height); //zeichnet den Titelbildschirm
+	ctx.drawImage(imgmenu, 0, 0, $(document).width(), $(document).height());
+	ctx.font = "72px AchtBit";
+  	ctx.textAlign = 'center';
+  	ctx.fillStyle = 'brown';
+  	ctx.fillText("Droned: Die Befreiung der Unterdr\u00fcckten",0.5*$(document).width(),100);
+	setTimeout(function(){Menu.prototype.blinken();},3000); //sorgt dafür, dass der blinkende Text nach 3 Sekunden unten erscheint
+}
+
+Menu.prototype.blinken = function(){ //lässt den Text unten blinken
 	if (this.started){
 		return;
 	}
 
 	ctx.clearRect(0,0,canvas.width,canvas.height);
-	ctx.drawImage(this.images[36], 0, 0, canvas.width, canvas.height);
-	ctx.font = "84px consolas";
-	ctx.textAlign = 'center';
-	ctx.fillStyle = 'white';
-	ctx.fillText("[Hier Name des Spiels einfuegen]",0.5*canvas.width, 100);
+	ctx.drawImage(imgmenu, 0, 0, $(document).width(), $(document).height());
+	ctx.font = "72px AchtBit";
+  	ctx.textAlign = 'center';
+  	ctx.fillStyle = 'brown';
+  	ctx.fillText("Droned: Die Befreiung der Unterdr\u00fcckten",0.5*$(document).width(),100);
 
-	if (this.blink == 1){
-		this.blink = 0;
-	} else {
-		this.blink = 1;
-		ctx.font = "30px consolas";
-		ctx.fillStyle = 'white';
-		ctx.fillText("Leertaste druecken zum Starten",0.5*canvas.width, canvas.height - 50);
+	if (blink == 1)
+	{
+		blink = 0;
+		setTimeout(function(){Menu.prototype.blinken();},1000);
+	}
+	else
+	{
+		blink = 1;
+		ctx.font = "30px AchtBit";
+		ctx.fillStyle = 'brown';
+		ctx.fillText("Leertaste dr\u00fccken zum Starten",0.5*$(document).width(),$(document).height() - 50);
+		setTimeout(function(){Menu.prototype.blinken();},1000);
 	}
 }

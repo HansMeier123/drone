@@ -19,7 +19,6 @@ function Game(values){
   var sounds = [];
   this.erdoganSound = new Audio('media/music/erdogan.mp3');
   this.bombSound= new Audio('media/music/bomb.mp3');
-  this.clonedBomb = this.bombSound.cloneNode();
   this.crashSound = new Audio('media/music/gameover1.mp3');
       //Audiodateien werden in Variablen zum Abspielen gespeichert
 
@@ -66,8 +65,9 @@ function Game(values){
     	},250);
 
     	setTimeout(function(){
-    		game.bombSound.play();
-    		game.clonedBomb.play();
+    		var clonedBomb = game.bombSound.cloneNode();
+			game.bombSound.play();
+    		clonedBomb.play();
     		obj.objects.explosions.push(new Explosion(canvas.width/2 - bombx, canvas.height/2 - bomby, 100, false));
     		obj.objects.explosions.push(new Explosion(canvas.width/2 - bombx, canvas.height/2 - bomby, 100, true));
             //erstellt Explosionen
